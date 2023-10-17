@@ -1,5 +1,3 @@
-# scrapping-proiektua
+# Scrapping-proiektua
 
 Kaixo
-
-# scrapping-proiektua
