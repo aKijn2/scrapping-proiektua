@@ -1,6 +1,7 @@
 package com.si.scrapping.scrapping;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +14,9 @@ public class Helbidea {
 
     public String html;
 
-    public HashMap < String, String > toMap() {
-        public HashMap < String, String > hashMap()
+    public Map < String, String > toMap() {
+        
+     Map<String, String> hash = new HashMap<>();
         hash.put("href", this.href);
         hash.put("html", this.html);
 

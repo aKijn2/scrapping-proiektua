@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import redis.clients.jedis.Jedis;
@@ -19,13 +20,16 @@ import redis.clients.jedis.JedisPool;
 @SpringBootTest
 class ScrappingApplicationTests {
 
+    @Autowired
+    public ScrappingService scrappingService;
+
     @Test
     void contextLoads() {
     }
 
     @Test
     void redisConnectiontest() {
-        JedisPool pool = new JedisPool("172.17.0.3", 6379);
+        JedisPool pool = new JedisPool("172.17.0.2", 6379);
 
         try (Jedis jedis = pool.getResource()) {
             // Store & Retrieve a simple string
@@ -80,81 +84,29 @@ class ScrappingApplicationTests {
     }
 
     @Test
-    void webScrapingAndSavingTest() {
-        // Helbide bat sortu
-        Helbidea helbidea = new Helbidea("HTML kodea hemen", "https://developer.mozilla.org/es/docs/Web/HTML/Element/article");
+    void scrapTest(){
+       Helbidea test = new Helbidea("https://developer.mozilla.org/es/docs/Web/HTML/Element/article",null);
+        List<Helbidea> emaitza= scrappingService.scrap(test);
 
-        // Zerbitzuaren instantzia sortu
-        WebScraperService webScraperService = new WebScraperService();
-
-        // Web arakatu eta helbideak gorde
-        List<Helbidea> helbideak = webScraperService.scrapAndSave(helbidea);
-
-        // Gorde diren helbideen informazioa erakutsi
-        for (Helbidea h : helbideak) {
-            System.out.println("HTML: " + h.getHtml());
-            System.out.println("Href: " + h.getHref());
-        }
-    }
-}
-
-class Helbidea {
-    private String html;
-    private String href;
-
-    public Helbidea(String html, String href) {
-        this.html = html;
-        this.href = href;
+        emaitza.forEach(helbidea -> System.out.println(helbidea.toString()));
     }
 
-    public String getHtml() {
-        return html;
-    }
+    // @Test
+    // void webScrapingAndSavingTest() {
+    //     // Helbide bat sortu
+    //     Helbidea helbidea = new Helbidea("HTML kodea hemen", "https://developer.mozilla.org/es/docs/Web/HTML/Element/article");
 
-    public String getHref() {
-        return href;
-    }
+    //     // Zerbitzuaren instantzia sortu
+    //     WebScraperService webScraperService = new WebScraperService();
 
-    public HashMap<String, String> hashMap() {
-        HashMap<String, String> map = new HashMap<>();
-        map.put("html", html);
-        map.put("href", href);
-        return map;
-    }
-}
+    //     // Web arakatu eta helbideak gorde
+    //     List<Helbidea> helbideak = webScraperService.scrapAndSave(helbidea);
 
-class WebScraperService {
-    public List<Helbidea> scrap(Helbidea helbidea) {
-        List<Helbidea> helbideak = new ArrayList<>();
-        try {
-            // Web arakatu
-            Document doc = Jsoup.connect(helbidea.getHref()).get();
-            
-            // Kodea erabiliz helbideak bilatu
-            Elements links = doc.select("a");
-            for (Element link : links) {
-                Helbidea h = new Helbidea(link.html(), link.attr("href"));
-                helbideak.add(h);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return helbideak;
-    }
+    //     // Gorde diren helbideen informazioa erakutsi
+    //     for (Helbidea h : helbideak) {
+    //         System.out.println("HTML: " + h.getHtml());
+    //         System.out.println("Href: " + h.getHref());
+    //     }
+    // }
 
-    public void save(List<Helbidea> helbideak) {
-        JedisPool pool = new JedisPool("172.17.0.3", 6379);
-        try (Jedis jedis = pool.getResource()) {
-            for (Helbidea helbidea : helbideak) {
-                Map<String, String> hash = helbidea.hashMap();
-                jedis.hset("helbideak", hash);
-            }
-        }
-    }
-
-    public List<Helbidea> scrapAndSave(Helbidea helbidea) {
-        List<Helbidea> helbideak = scrap(helbidea);
-        save(helbideak);
-        return helbideak;
-    }
 }
