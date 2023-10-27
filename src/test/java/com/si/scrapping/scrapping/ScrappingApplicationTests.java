@@ -29,7 +29,7 @@ class ScrappingApplicationTests {
 
     @Test
     void redisConnectiontest() {
-        JedisPool pool = new JedisPool("172.17.0.2", 6379);
+        JedisPool pool = new JedisPool("172.17.0.3", 6379);
 
         try (Jedis jedis = pool.getResource()) {
             // Store & Retrieve a simple string
@@ -89,6 +89,28 @@ class ScrappingApplicationTests {
         List<Helbidea> emaitza= scrappingService.scrap(test);
 
         emaitza.forEach(helbidea -> System.out.println(helbidea.toString()));
+    }
+    @Test
+    void scrapFroga() throws IOException {
+        redisConnectiontest();
+    
+        scrappingTest();
+    
+        System.out.println("Recopilando información de las pruebas anteriores...");
+    
+        int resultadoPruebaRedis = procesarResultadoPruebaRedis();
+        String resultadoPruebaScrapping = procesarResultadoPruebaScrapping();
+    
+        System.out.println("Resultado de la prueba Redis: " + resultadoPruebaRedis);
+        System.out.println("Resultado de la prueba Scrapping: " + resultadoPruebaScrapping);
+    }
+    
+    private int procesarResultadoPruebaRedis() {
+        return 0; 
+    }
+    
+    private String procesarResultadoPruebaScrapping() {
+        return "Resultado procesado de scrappingTest"; 
     }
 
     // @Test
